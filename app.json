@@ -1,0 +1,13 @@
+{
+  "expo": {
+    "name": "fyp-admin-android-app",
+    "slug": "fyp-admin-android-app",
+    "version": "1.0.0",
+    "sdkVersion": "41.0.0",
+    "platforms": [
+      "ios",
+      "android",
+      "web"
+    ]
+  }
+}
