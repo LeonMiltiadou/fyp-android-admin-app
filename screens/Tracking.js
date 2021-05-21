@@ -56,56 +56,41 @@ export default class Tracking extends Component {
   constructor(props) {
     super(props);
 
-    this.user_id = 'johndoe';
-    this.user_name = 'John Doe';
-    this.user_type = 'driver';
-
-    this.available_drivers_channel = null; // this is where customer will send a request to any available driver
-
-    this.ride_channel = null; // the channel used for communicating the current location
-    // for a specific order. Channel name is the customer's username
+    this.channel = null; // this is where customer will send a request to any available driver
 
     this.pusher = null; // the pusher client
   }
 
   async componentDidMount() {
-    // this.props.navigation.setParams({
-    //   headerButtonLabel: 'Picked Order',
-    //   headerButtonAction: this._pickedOrder,
-    // });
+    this.props.navigation.setParams({
+      headerButtonLabel: 'Picked Order',
+      headerButtonAction: this._pickedOrder,
+    });
 
-    // this.pusher = new Pusher(CHANNELS_APP_KEY, {
-    //   authEndpoint: `${BASE_URL}/pusher/auth`,
-    //   cluster: CHANNELS_APP_CLUSTER,
-    //   encrypted: true,
-    // });
+    this.pusher = new Pusher(CHANNELS_APP_KEY, {
+      authEndpoint: `${BASE_URL}/pusher/auth`,
+      cluster: CHANNELS_APP_CLUSTER,
+      encrypted: true,
+    });
 
-    // this.available_drivers_channel = this.pusher.subscribe(
-    //   'private-available-drivers',
-    // );
+    this.channel = pusher.subscribe('private-test');
 
-    // this.available_drivers_channel.bind('pusher:subscription_succeeded', () => {
-    //   this.available_drivers_channel.bind(
-    //     'client-driver-request',
-    //     order_data => {
-    //       if (!this.state.hasOrder) {
-    //         // if the driver has currently no order
-    //         this.setState({
-    //           isOrderDetailsModalVisible: true,
-    //           customer: order_data.customer,
-    //           restaurantLocation: {
-    //             latitude: order_data.restaurant_location[0],
-    //             longitude: order_data.restaurant_location[1],
-    //           },
-    //           customerLocation: order_data.customer_location,
+    channel.bind('client-driver-location', (data) => {
 
-    //           restaurantAddress: order_data.restaurant_address,
-    //           customerAddress: order_data.customer_address,
-    //         });
-    //       }
-    //     },
-    //   );
-    // });
+      this.setState(data);
+
+      axios.post(`${NGROKURL}/api/new`, {
+        latitude: data.latitude,
+        longitude: data.longitude,
+        accuracy: data.accuracy
+      })
+        .then(function (response) {
+          console.log(response);
+        })
+        .catch(function (error) {
+          console.log(error);
+        });
+    });
 
 
     let { status } = await Location.requestForegroundPermissionsAsync();
